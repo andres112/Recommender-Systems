@@ -1,10 +1,21 @@
 
 
-# AUTHOR: NN NN NN
+# AUTHOR: Maria Alejandra Cardona; Andres Felipe Dorado
 
 import numpy as np
 import pandas as pd
 import math
+
+def bestPrediction(movies, user):
+    no_rated = movies.loc[movies['{}_Likes'.format(user)] == 0]
+    max_prediction = no_rated.loc[movies['Pred_{}'.format(user)] == no_rated['Pred_{}'.format(user)].max()]
+    print ("\n** The most like prediction for {}: \n".format(user),max_prediction[['Movie', '{}_Likes'.format(user), 'Pred_{}'.format(user)]])
+
+def worstPrediction(movies, user):
+    no_rated = movies.loc[movies['{}_Likes'.format(user)] == 0]
+    worst_prediction = no_rated.loc[movies['Pred_{}'.format(user)] < 0]
+    print ("\n** Dislikes prediction for {}: \n".format(user),worst_prediction[['Movie', '{}_Likes'.format(user), 'Pred_{}'.format(user)]])
+
 
 # read CSV
 movies = pd.read_csv('data/movies.csv')
@@ -52,8 +63,16 @@ movies["Pred_Joan"] = pred_joan
 # Showing the prediction scores for John and the names of the movies
 print(movies[['Movie', 'John_Likes', 'Pred_John', 'Joan_Likes', 'Pred_Joan']], '\n')
 
+bestPrediction(movies,"John")
+bestPrediction(movies,"Joan")
+
+worstPrediction(movies,"John")
+worstPrediction(movies,"Joan")
+
 # ******************* TASK 2 ***************
 # Write the code to perform the tasks described in the exercise guide for the Task 2
+
+print("\n***************************************************************\n")
 
 total_sqrt = pd.DataFrame(
     map((lambda x: math.sqrt(x)), movies_weighted.iloc[:, 11:12].values)).T
@@ -83,3 +102,9 @@ movies_weighted["Pred_Joan"] = pred_joan
 
 # Showing the prediction scores for John and the names of the movies
 print(movies_weighted[['Movie', 'John_Likes', 'Pred_John', 'Joan_Likes', 'Pred_Joan']])
+
+bestPrediction(movies_weighted,"John")
+bestPrediction(movies_weighted,"Joan")
+
+worstPrediction(movies_weighted,"John")
+worstPrediction(movies_weighted,"Joan")
