@@ -73,13 +73,13 @@ joan_likes_score = pd.DataFrame(
 # Prediction vales for  user John
 pred_john = (movie_sqrt_list*john_likes_score.values).sum(axis=1)
 
-movies["Pred_John"] = pred_john
+movies_weighted["Pred_John"] = pred_john
 
 # Prediction vales for  user Joan
 # (each genre * each genre value of user)
 pred_joan = (movie_sqrt_list*joan_likes_score.values).sum(axis=1)
 
-movies["Pred_Joan"] = pred_joan
+movies_weighted["Pred_Joan"] = pred_joan
 
 # Showing the prediction scores for John and the names of the movies
-print(movies[['Movie', 'John_Likes', 'Pred_John', 'Joan_Likes', 'Pred_Joan']])
+print(movies_weighted[['Movie', 'John_Likes', 'Pred_John', 'Joan_Likes', 'Pred_Joan']])
