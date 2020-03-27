@@ -1,5 +1,3 @@
-
-
 # AUTHOR: Maria Alejandra Cardona; Andres Felipe Dorado
 
 import numpy as np
