@@ -14,11 +14,11 @@ k = 5
 # the we multiply  the value of the correlations by the rating otherwise no. The sum of all the operations is returned.
 
 
-def sumproduct(correlations, ratings):
+def sumproduct(correlations, ratings, users_mean=np.zeros(k)):
     sum = 0
     for i in range(len(list(correlations))):
         if not math.isnan(ratings[i]):
-            sum = sum+(correlations[i]*ratings[i])
+            sum = sum+(correlations[i]*(ratings[i] - users_mean[i]))
     return sum
 
 # This function receives the correlation values and a list of ratings, if  the rating is different than Nan
@@ -41,15 +41,24 @@ def prediction_not_normalized(correlations, ratings):
         return sumproduct(correlations.values.reshape(k), ratings) / sumif(correlations.values.reshape(k), ratings)
     return np.nan
 
+# Implementation of the Normalized score rating function
+
+
+def prediction_normalized(correlations, ratings, users_mean, ru_mean):
+    # k is the neigborhood size
+    if sumif(correlations.values.reshape(k), ratings) > 0:
+        return ru_mean + (sumproduct(correlations.values.reshape(k), ratings, users_mean) / sumif(correlations.values.reshape(k), ratings))
+    return np.nan
+
 # get the N-top movies for user based on the predictions
 
 
-def getTopN(user, n, previousRanked=False):
+def getTopN(movies, user, n, previousRanked=False):
     if (not previousRanked):
-        top_movies = movie_ratings[movie_ratings[user].isnull()].sort_values(
+        top_movies = movies[movies[user].isnull()].sort_values(
             by='Prediction', ascending=False)[:n]
     else:
-        top_movies = movie_ratings.sort_values(
+        top_movies = movies.sort_values(
             by='Prediction', ascending=False)[:n]
     return top_movies
 
@@ -108,4 +117,49 @@ movie_ratings['Prediction'] = prediction_results
 # We should recommend the items with the highest prediction score
 # print(movie_ratings.sort_values(by='Prediction', ascending=False))
 
-print(getTopN(user, 3))
+print("*** Top movies for {}  without normalization***\n".format(user))
+# please use True or False in the third parameter to include or not the movies prior rated by user target
+print(getTopN(movie_ratings, user, 3, True))
+
+# ****************************** Normalized Implementation**************************
+user_mean = np.nanmean(movie_ratings_weighted.iloc[:, 1:].values, axis=0)
+
+user_name = movie_ratings_weighted.columns.values
+data = {
+    'User': user_name[1:],
+    'Mean': user_mean
+}
+
+user_mean = pd.DataFrame(data)
+# Print the user ratings mean value
+# print(user_mean)
+
+# Get the mean of the user target
+ru_mean = user_mean[user_mean["User"] == user]["Mean"].iloc[0]
+
+# Here we are using the previous list to select the user's mean
+mean_top5 = user_mean[user_mean['User'].isin(
+    selection_labels[1:])]['Mean'].to_numpy()
+
+prediction_results = []
+
+# We iterate over the rows of the top5 similar users ratings
+for index, row in rating_top5.iterrows():
+    # Getting the rating values for the movies of each user of the top 5
+    ratings_row = row[selection_labels[1:]].values
+    # Computing the prediction values, using the not normalized model. We call this function sending as parameters
+    # the correlation values of the top 5 users and the ratings they have assigned to the items
+    pred_value = prediction_normalized(
+        corr_top5, ratings_row, mean_top5, ru_mean)
+    # List with the results of the prediction, we add a new result in each iteration, one per each item
+    prediction_results.append(pred_value)
+
+# Adding a new column to our original DataFrame
+movie_ratings_weighted['Prediction'] = prediction_results
+
+# Print the predictions using normalized method
+# print(movie_ratings_weighted)
+
+print("*** Top movies for {}  with normalization***\n".format(user))
+# please use True or False in the third parameter to include or not the movies prior rated by user target
+print(getTopN(movie_ratings_weighted, user, 3, True))
