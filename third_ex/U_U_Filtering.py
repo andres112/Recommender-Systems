@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import math
 
-user = "Arielle"
+user = "Osito"
 k = 5
 
 # SupportFunctions
@@ -117,29 +117,24 @@ movie_ratings['Prediction'] = prediction_results
 # We should recommend the items with the highest prediction score
 # print(movie_ratings.sort_values(by='Prediction', ascending=False))
 
-print("*** Top movies for {}  without normalization***\n".format(user))
+print("*** Top movies for {} without normalization***\n".format(user))
 # please use True or False in the third parameter to include or not the movies prior rated by user target
 print(getTopN(movie_ratings, user, 3, True))
 
 # ****************************** Normalized Implementation**************************
-user_mean = np.nanmean(movie_ratings_weighted.iloc[:, 1:].values, axis=0)
 
-user_name = movie_ratings_weighted.columns.values
-data = {
-    'User': user_name[1:],
-    'Mean': user_mean
-}
-
-user_mean = pd.DataFrame(data)
+#We get the average of all the movie ratings for each user
+user_mean=movie_ratings_weighted.mean(axis = 0, skipna = True)
 # Print the user ratings mean value
 # print(user_mean)
 
-# Get the mean of the user target
-ru_mean = user_mean[user_mean["User"] == user]["Mean"].iloc[0]
+#Taking the average ratings only for the top 5 neighbors of Arielle 
+mean_top5=[]
+for namen in corr_top5.columns:    
+    mean_top5.append(user_mean[namen])
 
-# Here we are using the previous list to select the user's mean
-mean_top5 = user_mean[user_mean['User'].isin(
-    selection_labels[1:])]['Mean'].to_numpy()
+#Taking the average rating for the target user (Arielle)
+ru_mean=user_mean[user]
 
 prediction_results = []
 
@@ -160,6 +155,6 @@ movie_ratings_weighted['Prediction'] = prediction_results
 # Print the predictions using normalized method
 # print(movie_ratings_weighted)
 
-print("*** Top movies for {}  with normalization***\n".format(user))
+print("*** Top movies for {} with normalization***\n".format(user))
 # please use True or False in the third parameter to include or not the movies prior rated by user target
 print(getTopN(movie_ratings_weighted, user, 3, True))
