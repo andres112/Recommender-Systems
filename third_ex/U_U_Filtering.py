@@ -1,12 +1,12 @@
 # Exercise 3: User-User Filtering
-# Authors:
+# Authors: Maria Alejandra Cardozo & Andres Dorado
 
 import numpy as np
 import pandas as pd
 import math
 
-user = "Osito"
-k = 5
+user = "Pedro"
+k = 2
 
 # SupportFunctions
 
