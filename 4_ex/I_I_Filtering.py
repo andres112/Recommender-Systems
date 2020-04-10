@@ -59,11 +59,12 @@ def getPrediction(item):
 
 # Get the unranked movies for user
 unranked_items = movie_ratings[movie_ratings[user] == 0][user]
-print(unranked_items)
+# print(unranked_items)
 
 # Loop for computing the prediction only of the unranked items
 prediction = pd.DataFrame()
 for item in unranked_items.index:
     prediction[item] = [getPrediction(item)]
 
-print(f"Prediction for user {user}:\n",prediction.T)
+print(f"\nPrediction for user {user}:\n",prediction.T.sort_values(by=0,
+        ascending=False))
