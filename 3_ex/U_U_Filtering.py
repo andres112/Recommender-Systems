@@ -6,7 +6,7 @@ import pandas as pd
 import math
 
 user = "Pedro"
-k = 2
+k = 5
 
 # SupportFunctions
 
@@ -14,11 +14,10 @@ k = 2
 # the we multiply  the value of the correlations by the rating otherwise no. The sum of all the operations is returned.
 
 
-def sumproduct(correlations, ratings, users_mean=np.zeros(k)):
+def sumproduct(correlations, ratings, user_mean=np.zeros(k)):
+    ratings = np.array(ratings, dtype=float)
     sum = 0
-    for i in range(len(list(correlations))):
-        if not math.isnan(ratings[i]):
-            sum = sum+(correlations[i]*(ratings[i] - users_mean[i]))
+    sum = np.nansum(correlations*(ratings - user_mean))
     return sum
 
 # This function receives the correlation values and a list of ratings, if  the rating is different than Nan
@@ -26,10 +25,11 @@ def sumproduct(correlations, ratings, users_mean=np.zeros(k)):
 
 
 def sumif(correlations, ratings):
+    ratings = np.array(ratings, dtype=float)
+    # sum all correlation values for users who have rated the item before
     sum = 0
-    for i in range(len(list(correlations))):
-        if not math.isnan(ratings[i]):
-            sum = sum+correlations[i]
+    ratings_notnan = np.isfinite(ratings)
+    sum = np.nansum(correlations * ratings_notnan)
     return sum
 
 # Implementation of the Not Normalized score rating function
@@ -157,4 +157,4 @@ movie_ratings_weighted['Prediction'] = prediction_results
 
 print("*** Top movies for {} with normalization***\n".format(user))
 # please use True or False in the third parameter to include or not the movies prior rated by user target
-print(getTopN(movie_ratings_weighted, user, 3, True))
+print(getTopN(movie_ratings_weighted, user, 5, True))
