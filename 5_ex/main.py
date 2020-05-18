@@ -83,15 +83,15 @@ for group in Groups:
 Group_recomendation={}
 print("\n* Average without misery STRATEGY\n")
 # Define the threshold to define the misery value
-threshold = 2
+threshold = 4
 for group in Groups:
     # First get the users without misery value
-    wo_misery = (ratings[Groups[group]] < threshold).sum()
+    wo_misery = (ratings[Groups[group]] <= threshold).sum(axis=1)
     index = wo_misery[wo_misery == 0].index.values
     # Just computing the group predictions if there are users
     if(len(index) > 0):
-        # Get mean rating between users of the group
-        top = ratings[index].mean(axis=1).sort_values(ascending=False)[:10]
+        # Get mean rating between users of the group just for the movies without misery
+        top = ratings.loc[index, Groups[group]].mean(axis=1).sort_values(ascending=False)[:10]
         prediction = get_prediction(top)
         Group_recomendation[group] = prediction.sort_values('rating', ascending=False).drop_duplicates(subset ="movie")[:5]
         print(f'\nGroup {group}:\n',Group_recomendation[group])
