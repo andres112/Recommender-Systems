@@ -1,5 +1,8 @@
 import pandas as pd
 
+from progress.bar import Bar
+
+
 ratings = pd.read_csv('ratings.csv', sep=';', header=0, index_col='Movie')
 similarity = pd.read_csv('similarity.csv', sep=';')
 
@@ -38,11 +41,15 @@ def get_prediction(top):
 # AgrS: LEAST MISERY for thw whole Table 1
 print("*****************************\nTask Number 1\n")
 Group_recomendation={}
+bar = Bar('Processing', max=len(Groups))
 for group in Groups:
     top = ratings[Groups[group]].min(axis=1).sort_values(ascending=False)[:10]
     prediction = get_prediction(top)
     Group_recomendation[group] = prediction.sort_values('rating', ascending=False).drop_duplicates(subset ="movie")[:5]
+    bar.next()
     # print(f'\nGroup {group}:\n',Group_recomendation[group])
+bar.finish()
+    
 
 # TASK related with Table 2
 
